@@ -29,7 +29,7 @@ if "_sim" not in basename:
 
 # Replace _sim with _reco if present
 if the_args.enableBIB:
-    basename = basename.replace("_reco", "_recoBIB")
+    basename = basename.replace("_sim", "_recoBIB")
 else:
     basename = basename.replace("_sim", "_reco")
 
@@ -816,8 +816,10 @@ OverlayMIX = MarlinProcessorWrapper("OverlayMIX")
 OverlayMIX.OutputLevel = INFO
 OverlayMIX.ProcessorType = "OverlayTimingRandomMix"
 OverlayMIX.Parameters = {
-    "PathToMuPlus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV/sim_mm/"],
-    "PathToMuMinus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV/sim_mp/"],
+    # "PathToMuPlus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV/sim_mm_pruned/"],
+    # "PathToMuMinus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV/sim_mp_pruned/"],
+    "PathToMuPlus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV_mine/sim_mm/"],
+    "PathToMuMinus": ["/data/userdata/phchang/muc/BIB10TeV/BIB10TeV_mine/sim_mp/"],
     "Collection_IntegrationTimes": [
         "VertexBarrelCollection", "-0.18", "0.18",
         "VertexEndcapCollection", "-0.18", "0.18",
@@ -835,8 +837,8 @@ OverlayMIX.Parameters = {
     "IntegrationTimeMin": ["-0.5"],
     "MCParticleCollectionName": ["MCParticle"],
     "MergeMCParticles": ["false"],
-    "NumberBackground": ["1666"]
-    # "NumberBackground": ["10"]
+    # "NumberBackground": ["1666"]
+    "NumberBackground": ["1"]
 }
 
 
