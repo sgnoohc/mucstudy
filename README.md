@@ -20,8 +20,9 @@
     cd build/
     cmake ..
     make install
-    export MARLIN_DLL=/home/users/phchang/work/muc/workdir/MyBIBUtils/lib/libMyBIBUtils.so:$MARLIN_DLL
-    cd ../../
+    cd ../
+    export MARLIN_DLL=$PWD/lib/libMyBIBUtils.so:$MARLIN_DLL
+    cd ../
 
     cd ../
 
