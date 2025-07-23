@@ -9,17 +9,17 @@ ENABLE_IP=false
 NEVENTS=""
 
 print_usage() {
-    echo "Usage: $0 -i <input_file> [--bib] [--ip] [--nevents <number>]"
-    echo "  -i <input_file>      Path to input file (must contain '_sim')"
+    echo "Usage: $0 --input <input_file> [--bib] [--ip] [--nevent <number>]"
+    echo "  --input <input_file>      Path to input file (must contain '_sim')"
     echo "  --bib                Enable BIB flag"
     echo "  --ip                 Enable IP flag"
-    echo "  --nevents <number>   Number of events to run (positive integer)"
+    echo "  --nevent <number>   Number of events to run (positive integer)"
 }
 
 # --- Parse arguments ---
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -i|--input)
+        --input)
             INPUT="$2"
             shift 2
             ;;
@@ -31,10 +31,10 @@ while [[ $# -gt 0 ]]; do
             ENABLE_IP=true
             shift
             ;;
-        --nevents)
+        --nevent)
             NEVENTS="$2"
             if ! [[ "$NEVENTS" =~ ^[0-9]+$ ]]; then
-                echo "Error: --nevents must be a positive integer."
+                echo "Error: --nevent must be a positive integer."
                 exit 1
             fi
             shift 2

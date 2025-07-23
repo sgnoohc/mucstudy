@@ -122,7 +122,7 @@ InitDD4hep = MarlinProcessorWrapper("InitDD4hep")
 InitDD4hep.OutputLevel = INFO
 InitDD4hep.ProcessorType = "InitializeDD4hep"
 InitDD4hep.Parameters = {
-    "DD4hepXMLFile": [my_mucoll_basedir+"/../detector-simulation/geometries/MAIA_v0/MAIA_v0.xml"],
+    "DD4hepXMLFile": [my_mucoll_basedir+"/mucoll_software/detector-simulation/geometries/MAIA_v0/MAIA_v0.xml"],
     #"DD4hepXMLFile": ["/code/detector-simulation/geometries/MuColl_10TeV_v0A/MuColl_10TeV_v0A.xml"],
     "EncodingStringParameterName": ["GlobalTrackerReadoutID"]
 }
@@ -335,7 +335,7 @@ CKFTracking.Parameters = {
     "CKF_NumMeasurementsCutOff": ["1"],
     "CaloFace_Radius": ["1857"],
     "CaloFace_Z": ["2307"],
-    "MatFile": [my_mucoll_basedir+"/../ACTSTracking/data/MAIA_v0_material.json"],
+    "MatFile": [my_mucoll_basedir+"/mucoll_software/ACTSTracking/data/MAIA_v0_material.json"],
     "PropagateBackward": ["False"],
     "DetectorSchema": ["MAIA_v0"],
     "RunCKF": ["True"],
@@ -366,7 +366,7 @@ CKFTracking.Parameters = {
                       "8", "2",
                       "17", "2",
                       "18", "2"],
-    "TGeoFile": [my_mucoll_basedir+"/../ACTSTracking/data/MAIA_v0.root"],
+    "TGeoFile": [my_mucoll_basedir+"/mucoll_software/ACTSTracking/data/MAIA_v0.root"],
     "TGeoDescFile": [os.environ['ACTSTRACKING_DATA']+"/MAIA_v0.json"],
     "TrackCollectionName": ["AllTracks"],
     "TrackerHitCollectionNames": ["VBTrackerHitsConed", "IBTrackerHitsConed", "OBTrackerHitsConed", "VETrackerHitsConed", "IETrackerHitsConed", "OETrackerHitsConed"]
@@ -630,7 +630,7 @@ MyEcalBarrelSelector.Parameters = {
     "CaloRelationCollectionName": ["EcalBarrelRelationsSimConed"],
     "GoodHitCollection": ["EcalBarrelCollectionSel"],
     "GoodRelationCollection": ["EcalBarrelRelationsSimSel"],
-    "ThresholdsFilePath": [my_mucoll_basedir+"/../MyBIBUtils/data/ECAL_Thresholds_10TeV.root"],
+    "ThresholdsFilePath": [my_mucoll_basedir+"/mucoll_software/MyBIBUtils/data/ECAL_Thresholds_10TeV.root"],
     "Nsigma": ["0"],
     "DoBIBsubtraction": ["false"]
 }
@@ -643,7 +643,7 @@ MyEcalEndcapSelector.Parameters = {
     "CaloRelationCollectionName": ["EcalEndcapRelationsSimConed"],
     "GoodHitCollection": ["EcalEndcapCollectionSel"],
     "GoodRelationCollection": ["EcalEndcapRelationsSimSel"],
-    "ThresholdsFilePath": [my_mucoll_basedir+"/../MyBIBUtils/data/ECAL_Thresholds_10TeV.root"],
+    "ThresholdsFilePath": [my_mucoll_basedir+"/mucoll_software/MyBIBUtils/data/ECAL_Thresholds_10TeV.root"],
     "Nsigma": ["0"],
     "DoBIBsubtraction": ["false"]
 }
@@ -718,7 +718,7 @@ DDMarlinPandora.Parameters = {
     "NEventsToSkip": ["0"],
     "NOuterSamplingLayers": ["3"],
     "PFOCollectionName": ["PandoraPFOs"],
-    "PandoraSettingsXmlFile": [my_mucoll_basedir+"/../SteeringMacros/PandoraSettings/PandoraSettingsDefault.xml"],
+    "PandoraSettingsXmlFile": [my_mucoll_basedir+"/mucoll_software/SteeringMacros/PandoraSettings/PandoraSettingsDefault.xml"],
     "ProngVertexCollections": ["ProngVertices"],
     "ReachesECalBarrelTrackerOuterDistance": ["-100"],
     "ReachesECalBarrelTrackerZMaxDistance": ["-50"],
@@ -900,29 +900,29 @@ algList.append(InnerPlanarConer)
 algList.append(InnerEndcapConer)
 algList.append(OuterPlanarConer)
 algList.append(OuterEndcapConer)
-#algList.append(CKFTracking)
-#algList.append(TrackDeduper)
-#algList.append(Refit)
-##algList.append(MyTrackSelector)
-#algList.append(MyTrackTruth)
-#algList.append(MyEcalBarrelDigi)
-#algList.append(MyEcalBarrelReco)
-#algList.append(MyEcalEndcapDigi)
-#algList.append(MyEcalEndcapReco)
-#algList.append(MyHcalBarrelDigi)
-#algList.append(MyHcalBarrelReco)
-#algList.append(MyHcalEndcapDigi)
-#algList.append(MyHcalEndcapReco)
-#algList.append(MyEcalBarrelConer)
-#algList.append(MyEcalEndcapConer)
-#algList.append(MyHcalBarrelConer)
-#algList.append(MyHcalEndcapConer)
-#algList.append(MyEcalBarrelSelector)
-#algList.append(MyEcalEndcapSelector)
-#algList.append(MyDDSimpleMuonDigi)
-#algList.append(DDMarlinPandora)
-#algList.append(FastJetProcessor)
-##algList.append(ValenciaJetProcessor)
+algList.append(CKFTracking)
+algList.append(TrackDeduper)
+algList.append(Refit)
+#algList.append(MyTrackSelector)
+algList.append(MyTrackTruth)
+algList.append(MyEcalBarrelDigi)
+algList.append(MyEcalBarrelReco)
+algList.append(MyEcalEndcapDigi)
+algList.append(MyEcalEndcapReco)
+algList.append(MyHcalBarrelDigi)
+algList.append(MyHcalBarrelReco)
+algList.append(MyHcalEndcapDigi)
+algList.append(MyHcalEndcapReco)
+algList.append(MyEcalBarrelConer)
+algList.append(MyEcalEndcapConer)
+algList.append(MyHcalBarrelConer)
+algList.append(MyHcalEndcapConer)
+algList.append(MyEcalBarrelSelector)
+algList.append(MyEcalEndcapSelector)
+algList.append(MyDDSimpleMuonDigi)
+algList.append(DDMarlinPandora)
+algList.append(FastJetProcessor)
+#algList.append(ValenciaJetProcessor)
 algList.append(Output_REC)
 
 ApplicationMgr(TopAlg=algList,
