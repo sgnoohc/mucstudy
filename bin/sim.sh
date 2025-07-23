@@ -56,4 +56,4 @@ ddsim \
   --numberOfEvents "$NEVENT" \
   --skipNEvents "$SKIP" \
   --outputFile "$OUTPUT_FILE" \
-  --compactFile ../detector-simulation/geometries/MAIA_v0/MAIA_v0.xml
+  --compactFile mucoll_software/detector-simulation/geometries/MAIA_v0/MAIA_v0.xml
