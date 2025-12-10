@@ -33,7 +33,7 @@ fi
 sed -i "s|<HistogramFile>.*</HistogramFile>|<HistogramFile>${HISTO}</HistogramFile>|" "${SETTINGS}"
 
 apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:latest bash << 'EOF'
-  set -euo pipefail
+  set -eo pipefail
   . /opt/spack/opt/spack/linux-almalinux9-x86_64/gcc-11.5.0/mucoll-stack-master-h2ssl2yh2yduqnhsv2i2zcjws74v7mcq/setup.sh # aliased by setup_mucoll
 
   cd pythia
