@@ -6,19 +6,19 @@ MY_MUCOLL_BASEDIR="${MY_MUCOLL_BASEDIR:-$PWD}"
 mkdir -p "${MY_MUCOLL_BASEDIR}/mucoll_software"
 cd "${MY_MUCOLL_BASEDIR}/mucoll_software"
 clone_if_missing() {
-  local url="$1"
-  local name="$2"
+  local name="$1"
+  shift
   if [ ! -d "$name/.git" ]; then
-    git clone "$url" "$name"
+    git clone "$@" "$name"
   else
     echo "Repo $name already exists, skipping clone"
   fi
 }
-clone_if_missing https://github.com/MuonColliderSoft/ACTSTracking ACTSTracking
-clone_if_missing https://github.com/madbaron/MyBIBUtils.git MyBIBUtils
-clone_if_missing https://github.com/madbaron/LCIOmacros.git LCIOmacros
-clone_if_missing https://github.com/madbaron/detector-simulation.git detector-simulation
-clone_if_missing https://github.com/madbaron/SteeringMacros.git SteeringMacros
+clone_if_missing ACTSTracking https://github.com/MuonColliderSoft/ACTSTracking
+clone_if_missing MyBIBUtils https://github.com/madbaron/MyBIBUtils.git
+clone_if_missing LCIOmacros https://github.com/madbaron/LCIOmacros.git
+clone_if_missing detector-simulation -b KITP_10TeV https://github.com/madbaron/detector-simulation.git
+clone_if_missing SteeringMacros https://github.com/madbaron/SteeringMacros.git
 cd "${MY_MUCOLL_BASEDIR}"
 
 # fixing hardcoded path in the SteeringMacros repo
