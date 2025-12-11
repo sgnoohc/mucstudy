@@ -14,8 +14,7 @@ Don't forget to source it `. ~/.bashrc`
 ```
 ./install_all.sh
 sbatch slurm/ddsim.sh # to get MuMuToZH_sim.slcio
-
-# after until the ddsim job is done and you got MuMuToZH_sim.slcio
+# wait until the ddsim job is done and you got MuMuToZH_sim.slcio, then:
 sbatch slurm/k4run.sh # to get MuMuToZH_reco.slcio
 ```
 
