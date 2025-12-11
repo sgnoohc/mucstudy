@@ -21,7 +21,7 @@ sbatch slurm/k4run.sh # to get MuMuToZH_reco.slcio
 ## To view the output
 
 ```
-apptainer shell /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:latest
+apptainer run /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:latest
 ```
 In the `Singularity>` shell
 ```
