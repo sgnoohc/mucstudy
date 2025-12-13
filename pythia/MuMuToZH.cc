@@ -1,10 +1,69 @@
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC3.h"
 
+#include <iostream>
+#include <string>
+#include <vector>
+#include <memory>
+#include <cmath>
+#include <filesystem>
+
 using namespace Pythia8;
 
-int main() {
+// nEvents jobID taskID
+int main(int argc, char* argv[]) {
     Pythia pythia;
+
+
+    // parse cli arguments
+    int nEvents = 10000;
+    int jobID = 0;
+    int taskID = 0;
+    if (argc > 3) {
+        try {
+            nEvents = std::stoi(argv[1]);
+            if (nEvents <= 0) {
+                std::cerr << "nEvents must be positive, got " << nEvents
+                          << ". Using default 10000 instead.\n";
+                nEvents = 10000;
+            }
+            jobID = std::stoi(argv[2]);
+            if (jobID <= 0) {
+                std::cerr << "jobID can't be negative, got " << jobID
+                          << ". Using default 0 instead.\n";
+                jobID = 0;
+            }
+            taskID = std::stoi(argv[3]);
+            if (taskID <= 0) {
+                std::cerr << "taskID can't be negative, got " << taskID
+                          << ". Using default 0 instead.\n";
+                taskID = 0;
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Could not parse integers from arguments '"
+                      << argv[1] << "', '" << argv[2] << "', '" << argv[3]
+	              << "'. Using defaults (nEvents = 10000, jobID = 0, taskID = 0) instead.\n";
+            nEvents = 10000;
+            jobID = 0;
+            taskID = 0;
+        }
+    } else {
+            std::cerr << "Using defaults (nEvents = 10000, jobID = 0, taskID = 0).\n";
+    }
+    std::cout << "Generating " << nEvents << " events.\n";
+
+    // set random seed
+    pythia.readString("Random:setSeed = on");
+    int randSeed = jobID + taskID;
+    while (randSeed > 900000000) {
+        std::string s = std::to_string(randSeed);
+        s.erase(0, 1);
+        randSeed = std::stoi(s);
+    }
+    if (randSeed <= 0) randSeed = 1;  // Pythia requires positive seeds
+    pythia.readString("Random:seed = " + std::to_string(randSeed));
+
 
     // Set μ⁺μ⁻ beams
     pythia.readString("Beams:idA = -13");
@@ -25,9 +84,11 @@ int main() {
 
     // HepMC3 output
     HepMC3::Pythia8ToHepMC3 toHepMC;
-    HepMC3::WriterAscii writer("MuMuToZH.hepmc");
+    std::string outDir = "hepmc";
+    std::filesystem::create_directories(outDir);
+    std::string outPath = outDir + "/MuMuToZH_" + std::to_string(jobID) + "_" + std::to_string(taskID) + ".hepmc";
+    HepMC3::WriterAscii writer(outPath);
 
-    int nEvents = 10000;
     for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
         if (!pythia.next()) continue;
 

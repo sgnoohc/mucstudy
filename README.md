@@ -1,21 +1,9 @@
 ## Setup
 
-### Optional
-
-To get notifications on when SLURM jobs finish running, add this to your `~/.bashrc`:
-```
-export SBATCH_MAIL_USER="$USER@ufl.edu" # or whatever email you want
-export SBATCH_MAIL_TYPE="END,FAIL"
-```
-Don't forget to source it `. ~/.bashrc`
-
-## In the repo directory
-
+In the repo directory
 ```
 ./install_all.sh
-sbatch slurm/ddsim.sh # to get MuMuToZH_sim.slcio
-# wait until the ddsim job is done and you got MuMuToZH_sim.slcio, then:
-sbatch slurm/k4run.sh # to get MuMuToZH_reco.slcio
+sbatch --mail-user="$USER@ufl.edu" --mail-type=END,FAIL --array=0-3 slurm.sh
 ```
 
 ## To view the output
@@ -26,6 +14,6 @@ apptainer run /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:
 In the `Singularity>` shell
 ```
 mucoll_setup
-anajob MuMuToZH_sim.slcio
-anajob MuMuToZH_reco.slcio
+cd slcio
+anajob filename.slcio
 ```
