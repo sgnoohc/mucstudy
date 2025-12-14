@@ -1,28 +1,49 @@
+import os
+import sys
 from array import array
-import os, sys
-from pyLCIO import IOIMPL, EVENT, UTIL
-from ROOT import TH1D, TH2D, TFile, TLorentzVector, TTree, TMath, TVector3, std, gInterpreter
+from glob import glob
 from math import *
 from optparse import OptionParser
-from glob import glob
+
+from pyLCIO import EVENT, IOIMPL, UTIL
+from ROOT import (
+    TH1D,
+    TH2D,
+    TFile,
+    TLorentzVector,
+    TMath,
+    TTree,
+    TVector3,
+    gInterpreter,
+    std,
+)
 
 # Enable ROOT's automatic C++ STL vector handling
 gInterpreter.Declare("#include <vector>")
 
 # VERBOSE=True
-VERBOSE=False
-STOPEVENT=10
+VERBOSE = False
+STOPEVENT = 10
 
 #########################
 # parameters
 
 parser = OptionParser()
-parser.add_option('-i', '--inFile', help='--inFile Output_REC.slcio',
-                  type=str, default='Output_REC.slcio')
-parser.add_option('-o', '--outFile', help='--outFile mcp_scan_output.root',
-                  type=str, default='jet_study_output.root')
-parser.add_option('-e', '--event', help='--event 0',
-                  type=int, default=0)
+parser.add_option(
+    "-i",
+    "--inFile",
+    help="--inFile Output_REC.slcio",
+    type=str,
+    default="Output_REC.slcio",
+)
+parser.add_option(
+    "-o",
+    "--outFile",
+    help="--outFile mcp_scan_output.root",
+    type=str,
+    default="jet_study_output.root",
+)
+parser.add_option("-e", "--event", help="--event 0", type=int, default=0)
 (options, args) = parser.parse_args()
 
 #########################
@@ -51,45 +72,102 @@ h_reco_zboson_pt = TH1D("h_reco_zboson_pt", "h_reco_zboson_pt", 180, 0, 6000)
 h_reco_zboson_eta = TH1D("h_reco_zboson_eta", "h_reco_zboson_eta", 180, -5, 5)
 h_reco_zboson_phi = TH1D("h_reco_zboson_phi", "h_reco_zboson_phi", 180, -3.1416, 3.1416)
 h_reco_zboson_mass = TH1D("h_reco_zboson_mass", "h_reco_zboson_mass", 180, 0, 150)
-h_reco_zboson_energy = TH1D("h_reco_zboson_energy", "h_reco_zboson_energy", 180, 0, 6000)
+h_reco_zboson_energy = TH1D(
+    "h_reco_zboson_energy", "h_reco_zboson_energy", 180, 0, 6000
+)
 
-h_higgs_pt_reco_v_truth = TH2D("h_higgs_pt_reco_v_truth", "h_higgs_pt_reco_v_truth", 50, 0, 6000, 50, 0, 6000)
-h_zboson_pt_reco_v_truth = TH2D("h_zboson_pt_reco_v_truth", "h_zboson_pt_reco_v_truth", 50, 0, 6000, 50, 0, 6000)
-h_higgs_energy_reco_v_truth = TH2D("h_higgs_energy_reco_v_truth", "h_higgs_energy_reco_v_truth", 50, 0, 6000, 50, 0, 6000)
-h_zboson_energy_reco_v_truth = TH2D("h_zboson_energy_reco_v_truth", "h_zboson_energy_reco_v_truth", 50, 0, 6000, 50, 0, 6000)
+h_higgs_pt_reco_v_truth = TH2D(
+    "h_higgs_pt_reco_v_truth", "h_higgs_pt_reco_v_truth", 50, 0, 6000, 50, 0, 6000
+)
+h_zboson_pt_reco_v_truth = TH2D(
+    "h_zboson_pt_reco_v_truth", "h_zboson_pt_reco_v_truth", 50, 0, 6000, 50, 0, 6000
+)
+h_higgs_energy_reco_v_truth = TH2D(
+    "h_higgs_energy_reco_v_truth",
+    "h_higgs_energy_reco_v_truth",
+    50,
+    0,
+    6000,
+    50,
+    0,
+    6000,
+)
+h_zboson_energy_reco_v_truth = TH2D(
+    "h_zboson_energy_reco_v_truth",
+    "h_zboson_energy_reco_v_truth",
+    50,
+    0,
+    6000,
+    50,
+    0,
+    6000,
+)
 
 nbins_2d = 520
 
-cal_hit_rz = TH2D('CAL_rz', 'CAL_rz',  nbins_2d, -5000, 5000,  nbins_2d, 0, 5000)
-ecal_hit_rz = TH2D('ECAL_rz', 'ECAL_rz',  nbins_2d, -5000, 5000,  nbins_2d, 0, 5000)
-hcal_hit_rz = TH2D('HCAL_rz', 'HCAL_rz',  nbins_2d, -5000, 5000,  nbins_2d, 0, 5000)
+cal_hit_rz = TH2D("CAL_rz", "CAL_rz", nbins_2d, -5000, 5000, nbins_2d, 0, 5000)
+ecal_hit_rz = TH2D("ECAL_rz", "ECAL_rz", nbins_2d, -5000, 5000, nbins_2d, 0, 5000)
+hcal_hit_rz = TH2D("HCAL_rz", "HCAL_rz", nbins_2d, -5000, 5000, nbins_2d, 0, 5000)
 
-cal_hit_xy = TH2D('CAL_xy', 'CAL_xy',  nbins_2d, -5000, 5000,  nbins_2d, -5000, 5000)
-ecal_hit_xy = TH2D('ECAL_xy', 'ECAL_xy',  nbins_2d, -5000, 5000,  nbins_2d, -5000, 5000)
-hcal_hit_xy = TH2D('HCAL_xy', 'HCAL_xy',  nbins_2d, -5000, 5000,  nbins_2d, -5000, 5000)
+cal_hit_xy = TH2D("CAL_xy", "CAL_xy", nbins_2d, -5000, 5000, nbins_2d, -5000, 5000)
+ecal_hit_xy = TH2D("ECAL_xy", "ECAL_xy", nbins_2d, -5000, 5000, nbins_2d, -5000, 5000)
+hcal_hit_xy = TH2D("HCAL_xy", "HCAL_xy", nbins_2d, -5000, 5000, nbins_2d, -5000, 5000)
 
 h_total_E = TH1D("h_total_E", "h_total_E", 180, 0, 12000)
-h_total_E_rechit_v_mcp = TH2D("h_total_E_rechit_v_mcp", "h_total_E_rechit_v_mcp", 180, 0, 12000, 180, 0, 12000)
+h_total_E_rechit_v_mcp = TH2D(
+    "h_total_E_rechit_v_mcp", "h_total_E_rechit_v_mcp", 180, 0, 12000, 180, 0, 12000
+)
 
 h_total_mcp_E = TH1D("h_total_mcp_E", "h_total_mcp_E", 180, 0, 12000)
-h_total_mcp_E_notleft = TH1D("h_total_mcp_E_notleft", "h_total_mcp_E_notleft", 180, 0, 12000)
+h_total_mcp_E_notleft = TH1D(
+    "h_total_mcp_E_notleft", "h_total_mcp_E_notleft", 180, 0, 12000
+)
 
-h_total_mcp_E_v_notleft = TH2D("h_total_mcp_E_v_notleft", "h_total_mcp_E_v_notleft", 180, 0, 12000, 180, 0, 12000)
+h_total_mcp_E_v_notleft = TH2D(
+    "h_total_mcp_E_v_notleft", "h_total_mcp_E_v_notleft", 180, 0, 12000, 180, 0, 12000
+)
 
 
-hists = [h_higgs_pt, h_higgs_eta, h_higgs_phi, h_higgs_mass, h_higgs_energy,
-         h_zboson_pt, h_zboson_eta, h_zboson_phi, h_zboson_mass, h_zboson_energy,
-         h_higgs_pt_reco_v_truth, h_higgs_energy_reco_v_truth,
-         h_zboson_pt_reco_v_truth, h_zboson_energy_reco_v_truth,
-         h_reco_higgs_pt, h_reco_higgs_eta, h_reco_higgs_phi, h_reco_higgs_mass, h_reco_higgs_energy,
-         h_reco_zboson_pt, h_reco_zboson_eta, h_reco_zboson_phi, h_reco_zboson_mass, h_reco_zboson_energy,
-         h_total_E, h_total_E_rechit_v_mcp,
-         cal_hit_rz, ecal_hit_rz, hcal_hit_rz,
-         cal_hit_xy, ecal_hit_xy, hcal_hit_xy,
-         h_total_mcp_E, h_total_mcp_E_notleft, h_total_mcp_E_v_notleft,
-        ]
+hists = [
+    h_higgs_pt,
+    h_higgs_eta,
+    h_higgs_phi,
+    h_higgs_mass,
+    h_higgs_energy,
+    h_zboson_pt,
+    h_zboson_eta,
+    h_zboson_phi,
+    h_zboson_mass,
+    h_zboson_energy,
+    h_higgs_pt_reco_v_truth,
+    h_higgs_energy_reco_v_truth,
+    h_zboson_pt_reco_v_truth,
+    h_zboson_energy_reco_v_truth,
+    h_reco_higgs_pt,
+    h_reco_higgs_eta,
+    h_reco_higgs_phi,
+    h_reco_higgs_mass,
+    h_reco_higgs_energy,
+    h_reco_zboson_pt,
+    h_reco_zboson_eta,
+    h_reco_zboson_phi,
+    h_reco_zboson_mass,
+    h_reco_zboson_energy,
+    h_total_E,
+    h_total_E_rechit_v_mcp,
+    cal_hit_rz,
+    ecal_hit_rz,
+    hcal_hit_rz,
+    cal_hit_xy,
+    ecal_hit_xy,
+    hcal_hit_xy,
+    h_total_mcp_E,
+    h_total_mcp_E_notleft,
+    h_total_mcp_E_v_notleft,
+]
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def get_tlv(mcp):
     mcp_px = mcp.getMomentum()[0]
     mcp_py = mcp.getMomentum()[1]
@@ -99,7 +177,8 @@ def get_tlv(mcp):
     tlv.SetPxPyPzE(mcp_px, mcp_py, mcp_pz, mcp_energy)
     return tlv
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def get_v3_hit(hit):
     v3 = TVector3()
     hit_x = hit.getPosition()[0]
@@ -108,7 +187,8 @@ def get_v3_hit(hit):
     v3.SetXYZ(hit_x, hit_y, hit_z)
     return v3
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def delta_r(hit, mcp):
     x = mcp.X()
     y = mcp.Y()
@@ -117,16 +197,20 @@ def delta_r(hit, mcp):
     v3_mcp.SetXYZ(x, y, z)
     return v3_mcp.DeltaR(hit)
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def print_daughters(particle, depth=0):
     indent = "  " * depth
     if particle.getGeneratorStatus() == 1:
-        print(f"particle.getPDG(): {particle.getPDG()} , particle.getGeneratorStatus(): {particle.getGeneratorStatus()} , particle.getEnergy(): {particle.getEnergy()} , ")
+        print(
+            f"particle.getPDG(): {particle.getPDG()} , particle.getGeneratorStatus(): {particle.getGeneratorStatus()} , particle.getEnergy(): {particle.getEnergy()} , "
+        )
     # print(f"{indent}PDG: {particle.getPDG()}, Energy: {particle.getEnergy():.2f} GeV")
     for daughter in particle.getDaughters():
         print_daughters(daughter, depth + 1)
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def sum_daughter_tlv(particle):
     total_tlv = TLorentzVector()
     daughters = particle.getDaughters()
@@ -144,7 +228,8 @@ def sum_daughter_tlv(particle):
         total_tlv += sum_daughter_tlv(da)
     return total_tlv
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def print_content_relations(event):
     for collection_name in event.getCollectionNames():
         col = event.getCollection(collection_name)
@@ -154,7 +239,8 @@ def print_content_relations(event):
             relation = UTIL.LCRelationNavigator(col)
             print(f"{relation.getFromType()} -> {relation.getToType()}")
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def find_daughters_recursive(particle, pdg_id=None, status_code=None):
     """
     Recursively searches daughters of an MCParticle for matches by PDG ID and status code.
@@ -166,6 +252,7 @@ def find_daughters_recursive(particle, pdg_id=None, status_code=None):
         List of matching daughter MCParticles.
     """
     matches = []
+
     def recurse(p):
         for daughter in p.getDaughters():
             match = True
@@ -176,10 +263,12 @@ def find_daughters_recursive(particle, pdg_id=None, status_code=None):
             if match:
                 matches.append(daughter)
             recurse(daughter)
+
     recurse(particle)
     return matches
 
-#_________________________________________________________________________________________________________________________________________
+
+# _________________________________________________________________________________________________________________________________________
 def find_first_daughter_recursive(particle, pdg_id=None, status_code=None):
     """
     Recursively searches daughters of an MCParticle and returns the first match
@@ -191,6 +280,7 @@ def find_first_daughter_recursive(particle, pdg_id=None, status_code=None):
     Returns:
         The first matching daughter MCParticle, or None if no match is found.
     """
+
     def recurse(p):
         for daughter in p.getDaughters():
             match = True
@@ -204,21 +294,34 @@ def find_first_daughter_recursive(particle, pdg_id=None, status_code=None):
             if result:
                 return result
         return None
+
     return recurse(particle)
 
 
-#_________________________________________________________________________________________________________________________________________
+# _________________________________________________________________________________________________________________________________________
 def print_mcparticle(mcp):
     def get_pdg_name(pdgid):
         pdg_names = {
-            11: "e-", -11: "e+",
-            13: "mu-", -13: "mu+",
-            22: "gamma", 12: "nu_e", -12: "nu_ebar",
-            14: "nu_mu", -14: "nu_mubar",
-            23: "Z0", 24: "W+", -24: "W-",
-            25: "H0", 5: "b", -5: "bbar", 6: "t", -6: "tbar"
+            11: "e-",
+            -11: "e+",
+            13: "mu-",
+            -13: "mu+",
+            22: "gamma",
+            12: "nu_e",
+            -12: "nu_ebar",
+            14: "nu_mu",
+            -14: "nu_mubar",
+            23: "Z0",
+            24: "W+",
+            -24: "W-",
+            25: "H0",
+            5: "b",
+            -5: "bbar",
+            6: "t",
+            -6: "tbar",
         }
         return pdg_names.get(pdgid, f"({pdgid})")
+
     # header = (
     #     " i  id    name         stat mothers(d1,d2) daughters(d1,d2)"
     #     "       px       py       pz        E      vx      vy      vz"
@@ -240,11 +343,14 @@ def print_mcparticle(mcp):
     vertex = p.getVertex()
     endpoint = p.getEndpoint()
     left_detector = p.hasLeftDetector() if hasattr(p, "hasLeftDetector") else False
-    print(f" {pdg:5} {name} {status:5}   "
-          f"  {pt:12.2f} {eta:12.2f} {phi:12.2f} {mass:8.2f} {energy:12.2f}"
-          f" {vertex[0]:6.2f} {vertex[1]:6.2f} {vertex[2]:6.2f}"
-          f" {endpoint[0]:12.2f} {endpoint[1]:12.2f} {endpoint[2]:12.2f}"
-          f"   {'yes' if left_detector else 'no ':>3}")
+    print(
+        f" {pdg:5} {name} {status:5}   "
+        f"  {pt:12.2f} {eta:12.2f} {phi:12.2f} {mass:8.2f} {energy:12.2f}"
+        f" {vertex[0]:6.2f} {vertex[1]:6.2f} {vertex[2]:6.2f}"
+        f" {endpoint[0]:12.2f} {endpoint[1]:12.2f} {endpoint[2]:12.2f}"
+        f"   {'yes' if left_detector else 'no ':>3}"
+    )
+
 
 for ievent, event in enumerate(reader):
 
@@ -274,8 +380,8 @@ for ievent, event in enumerate(reader):
     print_mcparticle(z)
     print_mcparticle(b_h)
     print_mcparticle(bx_h)
-    print_mcparticle(b_z)
-    print_mcparticle(bx_z)
+    # print_mcparticle(b_z)
+    # print_mcparticle(bx_z)
 
     tlv_h = get_tlv(h)
     tlv_z = get_tlv(z)
@@ -327,11 +433,11 @@ for ievent, event in enumerate(reader):
 
     hit_matched_to_h = []
     hit_matched_to_z = []
-    #-------------------------------------------------------------------
+    # -------------------------------------------------------------------
     total_E = 0
     # magic_scaling = 46.6
     magic_scaling = 1
-    ECALrechitCollection = event.getCollection('EcalBarrelCollectionRec')
+    ECALrechitCollection = event.getCollection("EcalBarrelCollectionRec")
     for rechit in ECALrechitCollection:
         v3_hit = get_v3_hit(rechit)
         dr = delta_r(v3_hit, tlv_h)
@@ -342,7 +448,7 @@ for ievent, event in enumerate(reader):
             hit_matched_to_z.append(rechit)
         # print(f"pt: {pt} , eta: {eta} , phi: {phi} , mass: {mass} , ")
         total_E += rechit.getEnergy() * magic_scaling
-    ECALrechitCollection = event.getCollection('EcalEndcapCollectionRec')
+    ECALrechitCollection = event.getCollection("EcalEndcapCollectionRec")
     for rechit in ECALrechitCollection:
         v3_hit = get_v3_hit(rechit)
         dr = delta_r(v3_hit, tlv_h)
@@ -352,7 +458,7 @@ for ievent, event in enumerate(reader):
         if dr < 0.8:
             hit_matched_to_z.append(rechit)
         total_E += rechit.getEnergy() * magic_scaling
-    HCALrechitCollection = event.getCollection('HcalBarrelCollectionRec')
+    HCALrechitCollection = event.getCollection("HcalBarrelCollectionRec")
     for rechit in HCALrechitCollection:
         v3_hit = get_v3_hit(rechit)
         dr = delta_r(v3_hit, tlv_h)
@@ -362,7 +468,7 @@ for ievent, event in enumerate(reader):
         if dr < 0.8:
             hit_matched_to_z.append(rechit)
         total_E += rechit.getEnergy() * magic_scaling
-    HCALrechitCollection = event.getCollection('HcalEndcapCollectionRec')
+    HCALrechitCollection = event.getCollection("HcalEndcapCollectionRec")
     for rechit in HCALrechitCollection:
         v3_hit = get_v3_hit(rechit)
         dr = delta_r(v3_hit, tlv_h)
@@ -379,15 +485,15 @@ for ievent, event in enumerate(reader):
     print(f"hit_matched_energy_z: {hit_matched_energy_z} , ")
     h_total_E.Fill(total_E)
     h_total_E_rechit_v_mcp.Fill(total_E, mcp_total_energy_notleft)
-    #-------------------------------------------------------------------
+    # -------------------------------------------------------------------
 
     simhit_matched_to_h = []
     simhit_matched_to_z = []
-    #-------------------------------------------------------------------
+    # -------------------------------------------------------------------
     total_E = 0
     # magic_scaling = 46.6
     magic_scaling = 1
-    ECALsimhitCollection = event.getCollection('ECalBarrelCollection')
+    ECALsimhitCollection = event.getCollection("ECalBarrelCollection")
     for simhit in ECALsimhitCollection:
         v3_hit = get_v3_hit(simhit)
         dr = delta_r(v3_hit, tlv_h)
@@ -398,7 +504,7 @@ for ievent, event in enumerate(reader):
             simhit_matched_to_z.append(simhit)
         # print(f"pt: {pt} , eta: {eta} , phi: {phi} , mass: {mass} , ")
         total_E += simhit.getEnergy() * magic_scaling
-    ECALsimhitCollection = event.getCollection('ECalEndcapCollection')
+    ECALsimhitCollection = event.getCollection("ECalEndcapCollection")
     for simhit in ECALsimhitCollection:
         v3_hit = get_v3_hit(simhit)
         dr = delta_r(v3_hit, tlv_h)
@@ -408,7 +514,7 @@ for ievent, event in enumerate(reader):
         if dr < 0.8:
             simhit_matched_to_z.append(simhit)
         total_E += simhit.getEnergy() * magic_scaling
-    HCALsimhitCollection = event.getCollection('HCalBarrelCollection')
+    HCALsimhitCollection = event.getCollection("HCalBarrelCollection")
     for simhit in HCALsimhitCollection:
         v3_hit = get_v3_hit(simhit)
         dr = delta_r(v3_hit, tlv_h)
@@ -418,7 +524,7 @@ for ievent, event in enumerate(reader):
         if dr < 0.8:
             simhit_matched_to_z.append(simhit)
         total_E += simhit.getEnergy() * magic_scaling
-    HCALsimhitCollection = event.getCollection('HCalEndcapCollection')
+    HCALsimhitCollection = event.getCollection("HCalEndcapCollection")
     for simhit in HCALsimhitCollection:
         v3_hit = get_v3_hit(simhit)
         dr = delta_r(v3_hit, tlv_h)
@@ -434,7 +540,10 @@ for ievent, event in enumerate(reader):
     print(f"simhit_matched_energy_h: {simhit_matched_energy_h} , ")
     print(f"simhit_matched_energy_z: {simhit_matched_energy_z} , ")
 
-    targets = [ ("h", get_tlv(h)), ("z", get_tlv(z)), ]
+    targets = [
+        ("h", get_tlv(h)),
+        ("z", get_tlv(z)),
+    ]
     dr_threshold = 0.4
 
     print("here")
@@ -473,7 +582,9 @@ for ievent, event in enumerate(reader):
                 best_jet = jet
 
         if best_dr < dr_threshold:
-            print(f"{name} matched to Jet {best_jet} with dR = {best_dr:.3f} E={best_jet.getEnergy()}")
+            print(
+                f"{name} matched to Jet {best_jet} with dR = {best_dr:.3f} E={best_jet.getEnergy()}"
+            )
             if name == "h":
                 jet = best_jet
                 tlv = get_tlv(jet)
@@ -502,8 +613,10 @@ for ievent, event in enumerate(reader):
     encoding = hitsCollection.getParameters().getStringVal(EVENT.LCIO.CellIDEncoding)
     decoder = UTIL.BitField64(encoding)
     for ihit, hit in enumerate(hitsCollection):
-        r = sqrt(hit.getPosition()[0]*hit.getPosition()
-                 [0] + hit.getPosition()[1]*hit.getPosition()[1])
+        r = sqrt(
+            hit.getPosition()[0] * hit.getPosition()[0]
+            + hit.getPosition()[1] * hit.getPosition()[1]
+        )
         ecal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         cal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         ecal_hit_xy.Fill(hit.getPosition()[0], hit.getPosition()[1], hit.getEnergy())
@@ -514,8 +627,10 @@ for ievent, event in enumerate(reader):
     encoding = hitsCollection.getParameters().getStringVal(EVENT.LCIO.CellIDEncoding)
     decoder = UTIL.BitField64(encoding)
     for ihit, hit in enumerate(hitsCollection):
-        r = sqrt(hit.getPosition()[0]*hit.getPosition()
-                 [0] + hit.getPosition()[1]*hit.getPosition()[1])
+        r = sqrt(
+            hit.getPosition()[0] * hit.getPosition()[0]
+            + hit.getPosition()[1] * hit.getPosition()[1]
+        )
         hcal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         cal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         hcal_hit_xy.Fill(hit.getPosition()[0], hit.getPosition()[1], hit.getEnergy())
@@ -526,8 +641,10 @@ for ievent, event in enumerate(reader):
     encoding = hitsCollection.getParameters().getStringVal(EVENT.LCIO.CellIDEncoding)
     decoder = UTIL.BitField64(encoding)
     for ihit, hit in enumerate(hitsCollection):
-        r = sqrt(hit.getPosition()[0]*hit.getPosition()
-                 [0] + hit.getPosition()[1]*hit.getPosition()[1])
+        r = sqrt(
+            hit.getPosition()[0] * hit.getPosition()[0]
+            + hit.getPosition()[1] * hit.getPosition()[1]
+        )
         ecal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         cal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         ecal_hit_xy.Fill(hit.getPosition()[0], hit.getPosition()[1], hit.getEnergy())
@@ -538,8 +655,10 @@ for ievent, event in enumerate(reader):
     encoding = hitsCollection.getParameters().getStringVal(EVENT.LCIO.CellIDEncoding)
     decoder = UTIL.BitField64(encoding)
     for ihit, hit in enumerate(hitsCollection):
-        r = sqrt(hit.getPosition()[0]*hit.getPosition()
-                 [0] + hit.getPosition()[1]*hit.getPosition()[1])
+        r = sqrt(
+            hit.getPosition()[0] * hit.getPosition()[0]
+            + hit.getPosition()[1] * hit.getPosition()[1]
+        )
         hcal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         cal_hit_rz.Fill(hit.getPosition()[2], r, hit.getEnergy())
         hcal_hit_xy.Fill(hit.getPosition()[0], hit.getPosition()[1], hit.getEnergy())
@@ -547,39 +666,10 @@ for ievent, event in enumerate(reader):
 
 
 reader.close()
-output_file = TFile(options.outFile, 'RECREATE')
+output_file = TFile(options.outFile, "RECREATE")
 for hist in hists:
     hist.Write()
 output_file.Close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # ---------------------------------------------------------------------------
@@ -669,55 +759,54 @@ output_file.Close()
 # YokeEndcapCollection          SimCalorimeterHit                0
 # ---------------------------------------------------------------------------
 
-    # etap = []
-    # etan = []
+# etap = []
+# etan = []
 
-    # print("here")
-    # pfosCollection = event.getCollection("PandoraPFOs")
-    # for ipfo, pfo in enumerate(pfosCollection):
-    #     px = pfo.getMomentum()[0]
-    #     py = pfo.getMomentum()[1]
-    #     pz = pfo.getMomentum()[2]
-    #     E = pfo.getEnergy()
-    #     tlv = TLorentzVector()
-    #     tlv.SetPxPyPzE(px, py, pz, E)
-    #     pt = tlv.Pt()
-    #     eta = tlv.Eta()
-    #     phi = tlv.Phi()
-    #     mass = tlv.M()
-    #     if eta > 0:
-    #         etap.append(pfo)
-    #     else:
-    #         etan.append(pfo)
-    #     # print(f"pt: {pt} , eta: {eta} , phi: {phi} , mass: {mass} , ")
+# print("here")
+# pfosCollection = event.getCollection("PandoraPFOs")
+# for ipfo, pfo in enumerate(pfosCollection):
+#     px = pfo.getMomentum()[0]
+#     py = pfo.getMomentum()[1]
+#     pz = pfo.getMomentum()[2]
+#     E = pfo.getEnergy()
+#     tlv = TLorentzVector()
+#     tlv.SetPxPyPzE(px, py, pz, E)
+#     pt = tlv.Pt()
+#     eta = tlv.Eta()
+#     phi = tlv.Phi()
+#     mass = tlv.M()
+#     if eta > 0:
+#         etap.append(pfo)
+#     else:
+#         etan.append(pfo)
+#     # print(f"pt: {pt} , eta: {eta} , phi: {phi} , mass: {mass} , ")
 
-    # tlv_p = TLorentzVector()
-    # for pfo in etap:
-    #     px = pfo.getMomentum()[0]
-    #     py = pfo.getMomentum()[1]
-    #     pz = pfo.getMomentum()[2]
-    #     E = pfo.getEnergy()
-    #     tlv = TLorentzVector()
-    #     tlv.SetPxPyPzE(px, py, pz, E)
-    #     tlv_p += tlv
-    #     print(f"tlv.Pt(): {tlv.Pt()} , tlv.Eta(): {tlv.Eta()} , tlv.Phi(): {tlv.Phi()} , tlv.M(): {tlv.M()} , tlv.E(): {tlv.E()} , ")
+# tlv_p = TLorentzVector()
+# for pfo in etap:
+#     px = pfo.getMomentum()[0]
+#     py = pfo.getMomentum()[1]
+#     pz = pfo.getMomentum()[2]
+#     E = pfo.getEnergy()
+#     tlv = TLorentzVector()
+#     tlv.SetPxPyPzE(px, py, pz, E)
+#     tlv_p += tlv
+#     print(f"tlv.Pt(): {tlv.Pt()} , tlv.Eta(): {tlv.Eta()} , tlv.Phi(): {tlv.Phi()} , tlv.M(): {tlv.M()} , tlv.E(): {tlv.E()} , ")
 
-    # print(f"tlv_p.Pt(): {tlv_p.Pt()} , tlv_p.Eta(): {tlv_p.Eta()} , tlv_p.Phi(): {tlv_p.Phi()} , tlv_p.M(): {tlv_p.M()} , tlv_p.E(): {tlv_p.E()} , ")
+# print(f"tlv_p.Pt(): {tlv_p.Pt()} , tlv_p.Eta(): {tlv_p.Eta()} , tlv_p.Phi(): {tlv_p.Phi()} , tlv_p.M(): {tlv_p.M()} , tlv_p.E(): {tlv_p.E()} , ")
 
-    # tlv_n = TLorentzVector()
-    # for pfo in etan:
-    #     px = pfo.getMomentum()[0]
-    #     py = pfo.getMomentum()[1]
-    #     pz = pfo.getMomentum()[2]
-    #     E = pfo.getEnergy()
-    #     tlv = TLorentzVector()
-    #     tlv.SetPxPyPzE(px, py, pz, E)
-    #     tlv_n += tlv
-    #     print(f"tlv.Pt(): {tlv.Pt()} , tlv.Eta(): {tlv.Eta()} , tlv.Phi(): {tlv.Phi()} , tlv.M(): {tlv.M()} , tlv.E(): {tlv.E()} , ")
+# tlv_n = TLorentzVector()
+# for pfo in etan:
+#     px = pfo.getMomentum()[0]
+#     py = pfo.getMomentum()[1]
+#     pz = pfo.getMomentum()[2]
+#     E = pfo.getEnergy()
+#     tlv = TLorentzVector()
+#     tlv.SetPxPyPzE(px, py, pz, E)
+#     tlv_n += tlv
+#     print(f"tlv.Pt(): {tlv.Pt()} , tlv.Eta(): {tlv.Eta()} , tlv.Phi(): {tlv.Phi()} , tlv.M(): {tlv.M()} , tlv.E(): {tlv.E()} , ")
 
-    # print(f"tlv_n.Pt(): {tlv_n.Pt()} , tlv_n.Eta(): {tlv_n.Eta()} , tlv_n.Phi(): {tlv_n.Phi()} , tlv_n.M(): {tlv_n.M()} , tlv_n.E(): {tlv_n.E()} , ")
+# print(f"tlv_n.Pt(): {tlv_n.Pt()} , tlv_n.Eta(): {tlv_n.Eta()} , tlv_n.Phi(): {tlv_n.Phi()} , tlv_n.M(): {tlv_n.M()} , tlv_n.E(): {tlv_n.E()} , ")
 
-    # tlv_all = tlv_p + tlv_n
+# tlv_all = tlv_p + tlv_n
 
-    # print(f"tlv_all.Pt(): {tlv_all.Pt()} , tlv_all.Eta(): {tlv_all.Eta()} , tlv_all.Phi(): {tlv_all.Phi()} , tlv_all.M(): {tlv_all.M()} , tlv_all.E(): {tlv_all.E()} , ")
-
+# print(f"tlv_all.Pt(): {tlv_all.Pt()} , tlv_all.Eta(): {tlv_all.Eta()} , tlv_all.Phi(): {tlv_all.Phi()} , tlv_all.M(): {tlv_all.M()} , tlv_all.E(): {tlv_all.E()} , ")
