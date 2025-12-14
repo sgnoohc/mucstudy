@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-N_EVENTS=5
+N_EVENTS=2
 
 pwd; hostname; date
 echo "started running muon collider simulation"
@@ -26,6 +26,13 @@ apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9
   . /opt/spack/opt/spack/linux-almalinux9-x86_64/gcc-11.5.0/mucoll-stack-master-h2ssl2yh2yduqnhsv2i2zcjws74v7mcq/setup.sh # aliased by setup_mucoll
   . ./setup.sh
   mkdir -p slcio
-  ddsim --inputFile pythia/hepmc/MuMuToZH_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.hepmc --steeringFile steering/sim_steer.py --outputFile slcio/MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio --compactFile mucoll_software/detector-simulation/geometries/MAIA_v0/MAIA_v0.xml
-  k4run steering/reco_steer.py --InFileName MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio --NEvents ${N_EVENTS}
+  ddsim \
+    --inputFile  pythia/hepmc/MuMuToZH_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.hepmc \
+    --steeringFile steering/sim_steer.py \
+    --outputFile slcio/MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio \
+    --compactFile mucoll_software/detector-simulation/geometries/MAIA_v0/MAIA_v0.xml \
+    --numberOfEvents "$N_EVENTS"
+  k4run steering/reco_steer.py \
+    --InFileName slcio/MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio \
+    --NEvents ${N_EVENTS}
 EOF
