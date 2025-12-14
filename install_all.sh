@@ -36,12 +36,6 @@ apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9
   set -eo pipefail
   . /opt/spack/opt/spack/linux-almalinux9-x86_64/gcc-11.5.0/mucoll-stack-master-h2ssl2yh2yduqnhsv2i2zcjws74v7mcq/setup.sh # aliased by setup_mucoll
 
-  cd pythia
-  . setup.sh
-  make
-  ./MuMuToZH
-  cd ..
-
   cd mucoll_software/MyBIBUtils
   mkdir -p build
   cd build/
