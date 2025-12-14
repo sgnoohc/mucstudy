@@ -24,7 +24,8 @@ apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9
   cd ..
 
   . /opt/spack/opt/spack/linux-almalinux9-x86_64/gcc-11.5.0/mucoll-stack-master-h2ssl2yh2yduqnhsv2i2zcjws74v7mcq/setup.sh # aliased by setup_mucoll
-  . ./setup.sh
+  export MY_MUCOLL_BASEDIR="$PWD"
+  export MARLIN_DLL="$MY_MUCOLL_BASEDIR/mucoll_software/MyBIBUtils/lib/libMyBIBUtils.so:$MARLIN_DLL"
   mkdir -p slcio
   ddsim \
     --inputFile  pythia/hepmc/MuMuToZH_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.hepmc \
