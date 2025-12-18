@@ -33,7 +33,8 @@ ROOT.gInterpreter.Declare("#include <vector>")
 
 
 def get_PxPyPzE(mcp):
-    px, py, pz = mcp.getMomentum()
+    p = mcp.getMomentum()
+    px, py, pz = p[0], p[1], p[2]
     e = mcp.getEnergy()
     return ROOT.Math.PxPyPzEVector(px, py, pz, e)
 
