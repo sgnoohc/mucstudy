@@ -4,7 +4,7 @@ from math import pi
 from optparse import OptionParser
 
 import pyLCIO as lcio
-from ROOT import TH1D, PxPyPzEVector, TFile, gInterpreter
+import ROOT
 
 PDG_TO_NAME = {
     11: "e-",
@@ -29,17 +29,17 @@ NAME_TO_PDG = {name: pdg for pdg, name in PDG_TO_NAME.items()}
 
 
 # Enable ROOT's automatic C++ STL vector handling
-gInterpreter.Declare("#include <vector>")
+ROOT.gInterpreter.Declare("#include <vector>")
 
 
 def get_PxPyPzE(mcp):
     px, py, pz = mcp.getMomentum()
     e = mcp.getEnergy()
-    return PxPyPzEVector(px, py, pz, e)
+    return ROOT.Math.PxPyPzEVector(px, py, pz, e)
 
 
 def make_TH1D(name, nb, lo, hi, title=None):
-    h = TH1D(name, title or name, nb, lo, hi)
+    h = ROOT.TH1D(name, title or name, nb, lo, hi)
     h.SetDirectory(0)
     return h
 
@@ -100,9 +100,6 @@ for ievent, event in enumerate(reader):
 
 
 reader.close()
-with TFile(options.outFile, "recreate") as outfile:
+with ROOT.TFile(options.outFile, "recreate") as outfile:
     for hist in hist_dict.values():
         outfile.WriteObject(hist, "myhisto")
-
-output_file = TFile(options.outFile, "RECREATE")
-output_file.Close()
