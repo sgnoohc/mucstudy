@@ -16,10 +16,7 @@ echo "started running muon collider simulation"
 apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:latest bash << EOF
   set -eo pipefail
 
-  echo "running pythia"
   cd pythia
-  . setup.sh
-  make
   ./MuMuToZH "$N_EVENTS" "$SLURM_ARRAY_JOB_ID" "$SLURM_ARRAY_TASK_ID"
   cd ..
 
