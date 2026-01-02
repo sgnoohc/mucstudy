@@ -52,7 +52,7 @@ parser.add_option(
     "--inFile",
     help="--inFile output_reco.slcio",
     type=str,
-    default="output_reco.slcio",
+    #default="output_reco.slcio",
 )
 parser.add_option(
     "-o",
@@ -68,7 +68,7 @@ reader = lcio.IOIMPL.LCFactory.getInstance().createLCReader()
 reader.open(options.inFile)
 
 # make higgs histograms
-# NOTE: they are empty and will be filled later
+# NOTE: the histograms are empty and will be filled later
 HIGGS_1D_PARAMS = {
     "pt": (180, 0, 6000),
     "eta": (180, -5, 5),
@@ -82,7 +82,7 @@ hist_dict = {
     for key, val in HIGGS_1D_PARAMS.items()
 }
 
-for ievent, event in enumerate(reader):
+for event in reader:
     mcps = event.getCollection("MCParticle")
 
     # gets first higgs mcp
