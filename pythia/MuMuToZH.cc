@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
                 nEvents = 10000;
             }
             jobID = std::stoi(argv[2]);
-            if (jobID <= 0) {
+            if (jobID < 0) {
                 std::cerr << "jobID can't be negative, got " << jobID
                           << ". Using default 0 instead.\n";
                 jobID = 0;
             }
             taskID = std::stoi(argv[3]);
-            if (taskID <= 0) {
+            if (taskID < 0) {
                 std::cerr << "taskID can't be negative, got " << taskID
                           << ". Using default 0 instead.\n";
                 taskID = 0;
