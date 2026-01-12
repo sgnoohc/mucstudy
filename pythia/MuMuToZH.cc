@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
                 nEvents = 10000;
             }
             jobID = std::stoi(argv[2]);
-            if (jobID <= 0) {
+            if (jobID < 0) {
                 std::cerr << "jobID can't be negative, got " << jobID
                           << ". Using default 0 instead.\n";
                 jobID = 0;
             }
             taskID = std::stoi(argv[3]);
-            if (taskID <= 0) {
+            if (taskID < 0) {
                 std::cerr << "taskID can't be negative, got " << taskID
                           << ". Using default 0 instead.\n";
                 taskID = 0;
@@ -89,7 +89,8 @@ int main(int argc, char* argv[]) {
     std::string outPath = outDir + "/MuMuToZH_" + std::to_string(jobID) + "_" + std::to_string(taskID) + ".hepmc";
     HepMC3::WriterAscii writer(outPath);
 
-    for (int iEvent = 0; iEvent < nEvents; ++iEvent) {
+    int writtenEvents = 0;
+    while (writtenEvents < nEvents) {
         if (!pythia.next()) continue;
 
         // Convert and write to HepMC
@@ -113,7 +114,7 @@ int main(int argc, char* argv[]) {
             hepmc_evt.remove_particle(p);
 
         writer.write_event(hepmc_evt);
-
+	writtenEvents++;
     }
 
     writer.close();
