@@ -16,7 +16,10 @@ all: $(TARGETS)
 
 # Pattern rule to build each executable
 %: %.cc
-	$(CXX) $(CXXFLAGS) `$(PYTHIA8_CONFIG) --cxxflags --libs` $(HEPMC3_INC) $(HEPMC3_LIB) -o $@ $<
+	$(CXX) $(CXXFLAGS) `$(PYTHIA8_CONFIG) --cxxflags --libs` \
+	$(HEPMC3_INC) $(HEPMC3_LIB) \
+	-Wl,-rpath,$(HEPMC3_DIR)/lib \
+	-o $@ $<
 
 # Clean
 clean:

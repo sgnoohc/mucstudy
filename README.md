@@ -13,7 +13,7 @@ apptainer run /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9:
 ```
 In the `Singularity>` shell
 ```
-mucoll_setup
+setup_mucoll
 cd slcio
 anajob filename.slcio
 ```
