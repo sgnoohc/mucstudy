@@ -69,28 +69,40 @@ reader.open(options.inFile)
 
 # make higgs histograms
 # NOTE: the histograms are empty and will be filled later
-HIGGS_1D_PARAMS = {
+TH1D_PARAMS = {
     "pt": (180, 0, 6000),
     "eta": (180, -5, 5),
     "phi": (180, -pi, pi),
     "mass": (180, 0, 150),
     "energy": (180, 0, 6000),
 }
+# NOTE: *val unpacks a tuple to pass every item in it separately into make_TH1D()
 hist_dict = {
-    # NOTE: *val unpacks a tuple to pass every item in it separately into book1d()
     f"h_higgs_{key}": make_TH1D(f"h_higgs_{key}", *val)
-    for key, val in HIGGS_1D_PARAMS.items()
+    for key, val in TH1D_PARAMS.items()
+}
+hist_dict = hist_dict | {
+    f"h_z_boson_{key}": make_TH1D(f"h_z_boson_{key}", *val)
+    for key, val in TH1D_PARAMS.items()
 }
 
+all_PDGs = {}
 for event in reader:
     mcps = event.getCollection("MCParticle")
 
-    # gets first higgs mcp
-    higgs_mcp = next((mcp for mcp in mcps if mcp.getPDG() == NAME_TO_PDG["H0"]), None)
+    higgs_mcp = None
+    z_boson_mcp = None
+    for mcp in mcps:
+        all_PDGs[mcp.getPDG()] = all_PDGs.get(mcp.getPDG(), 0) + 1
+        if mcp.getPDG() == NAME_TO_PDG["H0"]:
+            higgs_mcp = mcp
+        if mcp.getPDG() == NAME_TO_PDG["Z0"]:
+            z_boson_mcp = mcp
 
-    if higgs_mcp is None:
+    if higgs_mcp is None or z_boson_mcp is None:
         continue
     higgs_PxPyPzE = get_PxPyPzE(higgs_mcp)
+    z_boson_PxPyPzE = get_PxPyPzE(z_boson_mcp)
 
     # NOTE: will fail if you haven't created a histogram inside `hist_dict` beforehand
     hist_dict["h_higgs_pt"].Fill(higgs_PxPyPzE.Pt())
@@ -98,9 +110,24 @@ for event in reader:
     hist_dict["h_higgs_phi"].Fill(higgs_PxPyPzE.Phi())
     hist_dict["h_higgs_mass"].Fill(higgs_PxPyPzE.M())
     hist_dict["h_higgs_energy"].Fill(higgs_PxPyPzE.E())
-
-
+    hist_dict["h_z_boson_pt"].Fill(z_boson_PxPyPzE.Pt())
+    hist_dict["h_z_boson_eta"].Fill(z_boson_PxPyPzE.Eta())
+    hist_dict["h_z_boson_phi"].Fill(z_boson_PxPyPzE.Phi())
+    hist_dict["h_z_boson_mass"].Fill(z_boson_PxPyPzE.M())
+    hist_dict["h_z_boson_energy"].Fill(z_boson_PxPyPzE.E())
 reader.close()
+
+
+pdg_items = sorted(all_PDGs.items(), key=lambda kv: kv[1], reverse=True)
+hist_dict["h_all_PDGs"] = ROOT.TH1I("h_all_PDGs", "PDG ID counts;PDG ID;Count", len(pdg_items), 0.5, len(pdg_items) + 0.5)
+for i, (pdg, n) in enumerate(pdg_items, start=1):
+    hist_dict["h_all_PDGs"].SetBinContent(i, n)
+    hist_dict["h_all_PDGs"].GetXaxis().SetBinLabel(i, str(pdg))
+hist_dict["h_all_PDGs"].LabelsOption("v", "X") # vertical labels
+hist_dict["h_all_PDGs"].GetXaxis().SetLabelSize(0.03)
+
+
+# write histograms to .root file
 with ROOT.TFile(options.outFile, "recreate") as outfile:
-    for hist in hist_dict.values():
-        outfile.WriteObject(hist, "myhisto")
+    for name, hist in hist_dict.items():
+        outfile.WriteObject(hist, name)
