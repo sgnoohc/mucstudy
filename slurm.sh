@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=9gb
+#SBATCH --mem=12gb
 #SBATCH --time=02:10:00
 
 #SBATCH --job-name=muc
@@ -16,11 +16,13 @@ apptainer exec \
   bash -s << 'EOF'
     set -eo pipefail
 
-    N_EVENTS=2
+    N_EVENTS=3
 
     cd pythia
-    . setup.sh
-    ./MuMuToZH "$N_EVENTS" "$SLURM_ARRAY_JOB_ID" "$SLURM_ARRAY_TASK_ID"
+    (
+      . setup.sh
+      ./MuMuToZH "$N_EVENTS" "$SLURM_ARRAY_JOB_ID" "$SLURM_ARRAY_TASK_ID"
+    )
     cd ..
 
     . /opt/spack/opt/spack/linux-almalinux9-x86_64/gcc-11.5.0/mucoll-stack-master-h2ssl2yh2yduqnhsv2i2zcjws74v7mcq/setup.sh # aliased by setup_mucoll
@@ -35,5 +37,11 @@ apptainer exec \
       --numberOfEvents "$N_EVENTS"
     k4run steering/reco_steer.py \
       --InFileName "slcio/MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio" \
-      --NEvents "$N_EVENTS"
+      --NEvents "$N_EVENTS" || true # continues the script after the crash
+
+    mkdir -p root
+    echo "CONVERTING SLCIO TO ROOT"
+    python slcio_to_root.py \
+      -i "slcio/MuMuToZH_reco_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio" \
+      -o "root/MuMuToZH_reco_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.root"
 EOF
