@@ -33,4 +33,6 @@ apptainer exec /cvmfs/unpacked.cern.ch/ghcr.io/muoncollidersoft/mucoll-sim-alma9
     --outputFile slcio/MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio \
     --compactFile mucoll_software/detector-simulation/geometries/MAIA_v0/MAIA_v0.xml \
     --numberOfEvents "$N_EVENTS"
+    
+  k4run steering/reco_steer.py --InFileName MuMuToZH_sim_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.slcio --NEvents ${N_EVENTS}
 EOF
