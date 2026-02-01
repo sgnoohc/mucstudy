@@ -1,6 +1,7 @@
+root/
 logs/
 slcio/
-MuMuToZH
+mucoll_software/
+pythia/MuMuToZH
 test_analysis/drawn
-pythia/hepmc
-mucoll_software
+pythia/hepmc/
