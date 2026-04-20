@@ -19,37 +19,42 @@ int main(int argc, char* argv[]) {
     int nEvents = 10000;
     int jobID = 0;
     int taskID = 0;
-    if (argc > 3) {
+    std::string outDir = "";
+    if (argc < 6) {
+        std::cout << "Usage: " << argv[0] << " <pythia_config_file> <nEvents> <jobID> <taskID> <outDir>" << std::endl;
+        exit(-1);
+    }
+    if (argc >= 6) {
         try {
-            nEvents = std::stoi(argv[1]);
+            pythia.readFile(argv[1]);
+
+            nEvents = std::stoi(argv[2]);
             if (nEvents <= 0) {
                 std::cerr << "nEvents must be positive, got " << nEvents
                           << ". Using default 10000 instead.\n";
                 nEvents = 10000;
             }
-            jobID = std::stoi(argv[2]);
+            jobID = std::stoi(argv[3]);
             if (jobID < 0) {
                 std::cerr << "jobID can't be negative, got " << jobID
                           << ". Using default 0 instead.\n";
                 jobID = 0;
             }
-            taskID = std::stoi(argv[3]);
+            taskID = std::stoi(argv[4]);
             if (taskID < 0) {
                 std::cerr << "taskID can't be negative, got " << taskID
                           << ". Using default 0 instead.\n";
                 taskID = 0;
             }
+	    outDir = argv[5];
         }
         catch (const std::exception& e) {
-            std::cerr << "Could not parse integers from arguments '"
-                      << argv[1] << "', '" << argv[2] << "', '" << argv[3]
-	              << "'. Using defaults (nEvents = 10000, jobID = 0, taskID = 0) instead.\n";
-            nEvents = 10000;
-            jobID = 0;
-            taskID = 0;
+            std::cout << "Usage: " << argv[0] << " <pythia_config_file> <nEvents> <jobID> <taskID> <outDir>" << std::endl;
+            exit(-1);
         }
     } else {
-            std::cerr << "Using defaults (nEvents = 10000, jobID = 0, taskID = 0).\n";
+        std::cout << "Usage: " << argv[0] << " <pythia_config_file> <nEvents> <jobID> <taskID> <outDir>" << std::endl;
+        exit(-1);
     }
     std::cout << "Generating " << nEvents << " events.\n";
 
@@ -64,29 +69,17 @@ int main(int argc, char* argv[]) {
     if (randSeed <= 0) randSeed = 1;  // Pythia requires positive seeds
     pythia.readString("Random:seed = " + std::to_string(randSeed));
 
-
-    // Set μ⁺μ⁻ beams
-    pythia.readString("Beams:idA = -13");
-    pythia.readString("Beams:idB = 13");
-    pythia.readString("Beams:eCM = 10000.");  // sqrt(s)s = 10 TeV
-
-    // Enable HZ production
-    pythia.readString("HiggsSM:ffbar2HZ = on");
-
-    // Optional: visible decays
-    pythia.readString("23:onMode = off");
-    pythia.readString("23:onIfAny = 1 2 3 4 5 11 13"); // hadronic & leptonic Z decays
-    pythia.readString("25:onMode = off");
-    pythia.readString("25:onIfAny = 1 2 3 4 5 11 13 15 21 22"); // visible Higgs decays
+    pythia.readFile("pythia.conf");
 
     // Initialize
     pythia.init();
 
     // HepMC3 output
     HepMC3::Pythia8ToHepMC3 toHepMC;
-    std::string outDir = "hepmc";
     std::filesystem::create_directories(outDir);
-    std::string outPath = outDir + "/MuMuToZH_" + std::to_string(jobID) + "_" + std::to_string(taskID) + ".hepmc";
+    std::filesystem::path cfgPath(argv[1]);
+    std::string cfgTag = cfgPath.stem().string();  // filename without .conf
+    std::string outPath = outDir + "/" + cfgTag + "_" + std::to_string(jobID) + "_" + std::to_string(taskID) + ".hepmc";
     HepMC3::WriterAscii writer(outPath);
 
     int writtenEvents = 0;
@@ -114,7 +107,7 @@ int main(int argc, char* argv[]) {
             hepmc_evt.remove_particle(p);
 
         writer.write_event(hepmc_evt);
-	writtenEvents++;
+        writtenEvents++;
     }
 
     writer.close();
